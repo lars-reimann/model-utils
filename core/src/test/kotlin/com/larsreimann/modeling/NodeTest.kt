@@ -2,24 +2,23 @@
 
 package com.larsreimann.modeling
 
-import com.larsreimann.modeling.TreeNode
+import com.larsreimann.modeling.assertions.shouldBeReleased
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.sequences.shouldBeEmpty
 import org.junit.jupiter.api.Test
 
-class TreeNodeTest {
+class NodeTest {
 
     @Test
     fun `isRoot() should be true by default`() {
-        TreeNode().isRoot().shouldBeTrue()
+        Node().isRoot().shouldBeTrue()
     }
 
     @Test
     fun `isRoot() should indicate whether the node has a parent`() {
-        val innerNode = TreeNode()
-        val root = object : TreeNode() {
+        val innerNode = Node()
+        val root = object : Node() {
             val child = ContainmentReference(innerNode)
         }
 
@@ -29,19 +28,18 @@ class TreeNodeTest {
 
     @Test
     fun `children() should be empty by default`() {
-        TreeNode().children().shouldBeEmpty()
+        Node().children().shouldBeEmpty()
     }
 
     @Test
     fun `release() should set parent and container to null`() {
-        val innerNode = TreeNode()
-        val root = object : TreeNode() {
+        val innerNode = Node()
+        val root = object : Node() {
             val child = ContainmentReference(innerNode)
         }
 
         innerNode.release()
 
-        innerNode.parent.shouldBeNull()
-        innerNode.container.shouldBeNull()
+        innerNode.shouldBeReleased()
     }
 }

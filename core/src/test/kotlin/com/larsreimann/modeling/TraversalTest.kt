@@ -1,21 +1,22 @@
 package com.larsreimann.modeling
 
+import com.larsreimann.modeling.util.NamedNode
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class TreeNodeTraversalTest {
+class TraversalTest {
 
-    private class Root(children: List<TreeNode>) : TreeNode() {
+    private class Root(children: List<Node>) : NamedNode("root") {
         val children = ContainmentList(children)
 
-        override fun children(): Sequence<TreeNode> {
+        override fun children(): Sequence<Node> {
             return children.asSequence()
         }
     }
 
-    private class InnerNode(child: TreeNode) : TreeNode() {
+    private class InnerNode(child: Node) : NamedNode("innerNode") {
         val child by ContainmentReference(child)
 
         override fun children() = sequence {
@@ -23,19 +24,19 @@ class TreeNodeTraversalTest {
         }
     }
 
-    private lateinit var leaf1: TreeNode
-    private lateinit var leaf2: TreeNode
-    private lateinit var leaf3: TreeNode
-    private lateinit var inner: InnerNode
+    private lateinit var leaf1: Node
+    private lateinit var leaf2: Node
+    private lateinit var leaf3: Node
+    private lateinit var innerNode: InnerNode
     private lateinit var root: Root
 
     @BeforeEach
     fun resetTestData() {
-        leaf1 = TreeNode()
-        leaf2 = TreeNode()
-        leaf3 = TreeNode()
-        inner = InnerNode(leaf1)
-        root = Root(listOf(inner, leaf2, leaf3))
+        leaf1 = NamedNode("leaf1")
+        leaf2 = NamedNode("leaf2")
+        leaf3 = NamedNode("leaf3")
+        innerNode = InnerNode(leaf1)
+        root = Root(listOf(innerNode, leaf2, leaf3))
     }
 
     @Test
@@ -50,32 +51,32 @@ class TreeNodeTraversalTest {
 
     @Test
     fun `ancestor() should return all nodes along the path to the root`() {
-        leaf1.ancestors().toList().shouldContainExactly(inner, root)
+        leaf1.ancestors().toList().shouldContainExactly(innerNode, root)
     }
 
     @Test
     fun `ancestorOrSelf() should return the node and all nodes along the path to the root`() {
-        leaf1.ancestorsOrSelf().toList().shouldContainExactly(leaf1, inner, root)
+        leaf1.ancestorsOrSelf().toList().shouldContainExactly(leaf1, innerNode, root)
     }
 
     @Test
     fun `siblings() should return the siblings of the node`() {
-        inner.siblings().toList().shouldContainExactly(leaf2, leaf3)
+        innerNode.siblings().toList().shouldContainExactly(leaf2, leaf3)
     }
 
     @Test
     fun `siblingsOrSelf() should return all children of the parent`() {
-        inner.siblingsOrSelf().toList().shouldContainExactly(inner, leaf2, leaf3)
+        innerNode.siblingsOrSelf().toList().shouldContainExactly(innerNode, leaf2, leaf3)
     }
 
     @Test
     fun `descendant(PREORDER) should return all nodes below of the node in preorder`() {
-        root.descendants(Traversal.PREORDER).toList().shouldContainExactly(inner, leaf1, leaf2, leaf3)
+        root.descendants(Traversal.PREORDER).toList().shouldContainExactly(innerNode, leaf1, leaf2, leaf3)
     }
 
     @Test
     fun `descendant(POSTORDER) should return all nodes below of the node in postorder`() {
-        root.descendants(Traversal.POSTORDER).toList().shouldContainExactly(leaf1, inner, leaf2, leaf3)
+        root.descendants(Traversal.POSTORDER).toList().shouldContainExactly(leaf1, innerNode, leaf2, leaf3)
     }
 
     @Test
@@ -85,12 +86,12 @@ class TreeNodeTraversalTest {
 
     @Test
     fun `descendantOrSelf(PREORDER) should return the node and all nodes below it in preorder`() {
-        root.descendantsOrSelf(Traversal.PREORDER).toList().shouldContainExactly(root, inner, leaf1, leaf2, leaf3)
+        root.descendantsOrSelf(Traversal.PREORDER).toList().shouldContainExactly(root, innerNode, leaf1, leaf2, leaf3)
     }
 
     @Test
     fun `descendantOrSelf(POSTORDER) should return the node and all nodes below it in postorder`() {
-        root.descendantsOrSelf(Traversal.POSTORDER).toList().shouldContainExactly(leaf1, inner, leaf2, leaf3, root)
+        root.descendantsOrSelf(Traversal.POSTORDER).toList().shouldContainExactly(leaf1, innerNode, leaf2, leaf3, root)
     }
 
     @Test
@@ -100,11 +101,11 @@ class TreeNodeTraversalTest {
 
     @Test
     fun `closest() should return the node itself if has the correct type`() {
-        inner.closest<InnerNode>() shouldBe inner
+        innerNode.closest<InnerNode>() shouldBe innerNode
     }
 
     @Test
     fun `closest() should return the first node with the correct type along the path to the root`() {
-        leaf1.closest<InnerNode>() shouldBe inner
+        leaf1.closest<InnerNode>() shouldBe innerNode
     }
 }

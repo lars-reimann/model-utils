@@ -1,5 +1,7 @@
 package com.larsreimann.modeling
 
+import com.larsreimann.modeling.assertions.shouldBeLocatedAt
+import com.larsreimann.modeling.assertions.shouldBeReleased
 import io.kotest.assertions.throwables.shouldNotThrowUnit
 import io.kotest.matchers.concurrent.shouldCompleteWithin
 import io.kotest.matchers.nulls.shouldBeNull
@@ -10,26 +12,25 @@ import java.util.concurrent.TimeUnit
 
 class ContainmentReferenceTest {
 
-    private class Root(child: TreeNode, someOtherChild: TreeNode) : TreeNode() {
+    private class Root(child: Node, someOtherChild: Node) : Node() {
         val child = ContainmentReference(child)
         val someOtherChild = ContainmentReference(someOtherChild)
     }
 
-    private lateinit var innerNode: TreeNode
-    private lateinit var someOtherInnerNode: TreeNode
+    private lateinit var innerNode: Node
+    private lateinit var someOtherInnerNode: Node
     private lateinit var root: Root
 
     @BeforeEach
     fun resetTestData() {
-        innerNode = TreeNode()
-        someOtherInnerNode = TreeNode()
+        innerNode = Node()
+        someOtherInnerNode = Node()
         root = Root(innerNode, someOtherInnerNode)
     }
 
     @Test
     fun `constructor should correctly link initial value`() {
-        innerNode.parent shouldBe root
-        innerNode.container shouldBe root.child
+        innerNode.shouldBeLocatedAt(root, root.child)
         root.child.node shouldBe innerNode
     }
 
@@ -37,12 +38,10 @@ class ContainmentReferenceTest {
     fun `setter should work if a new node is passed`() {
         root.child.node = root.someOtherChild.node
 
-        innerNode.parent.shouldBeNull()
-        innerNode.container.shouldBeNull()
+        innerNode.shouldBeReleased()
         root.child.node shouldBe someOtherInnerNode
 
-        someOtherInnerNode.parent shouldBe root
-        someOtherInnerNode.container shouldBe root.child
+        someOtherInnerNode.shouldBeLocatedAt(root, root.child)
         root.someOtherChild.node.shouldBeNull()
     }
 
@@ -50,8 +49,7 @@ class ContainmentReferenceTest {
     fun `setter should work if null is passed`() {
         root.child.node = null
 
-        innerNode.parent.shouldBeNull()
-        innerNode.container.shouldBeNull()
+        innerNode.shouldBeReleased()
         root.child.node.shouldBeNull()
     }
 
@@ -68,8 +66,7 @@ class ContainmentReferenceTest {
     fun `releaseNode should remove links if a node is passed that is referenced`() {
         root.child.releaseNode(innerNode)
 
-        innerNode.parent.shouldBeNull()
-        innerNode.container.shouldBeNull()
+        innerNode.shouldBeReleased()
         root.child.node.shouldBeNull()
     }
 
@@ -77,12 +74,10 @@ class ContainmentReferenceTest {
     fun `releaseNode should do nothing if a node is passed that is not referenced`() {
         root.child.releaseNode(someOtherInnerNode)
 
-        innerNode.parent shouldBe root
-        innerNode.container shouldBe root.child
+        innerNode.shouldBeLocatedAt(root, root.child)
         root.child.node shouldBe innerNode
 
-        someOtherInnerNode.parent shouldBe root
-        someOtherInnerNode.container shouldBe root.someOtherChild
+        someOtherInnerNode.shouldBeLocatedAt(root, root.someOtherChild)
         root.someOtherChild.node shouldBe someOtherInnerNode
     }
 }

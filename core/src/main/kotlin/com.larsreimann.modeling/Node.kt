@@ -5,7 +5,7 @@ import kotlin.reflect.KProperty
 /**
  * A node in a tree. It has references to its parent and its children.
  */
-open class TreeNode {
+open class Node {
 
     /**
      * Parent and container of this node in the tree.
@@ -16,7 +16,7 @@ open class TreeNode {
     /**
      * The parent of this node in the tree.
      */
-    val parent: TreeNode?
+    val parent: Node?
         get() = location.parent
 
     /**
@@ -40,7 +40,7 @@ open class TreeNode {
     /**
      * The child nodes of this node.
      */
-    open fun children() = emptySequence<TreeNode>()
+    open fun children() = emptySequence<Node>()
 
     /**
      * Cross-references to this node. They get notified whenever this node is moved.
@@ -57,7 +57,7 @@ open class TreeNode {
     /**
      * Sets parent and container of this node in the tree.
      */
-    private fun move(newParent: TreeNode?, newContainer: Container<*>?) {
+    private fun move(newParent: Node?, newContainer: Container<*>?) {
         val oldLocation = this.location
         val newLocation = Location(newParent, newContainer)
         this.location = newLocation
@@ -66,9 +66,9 @@ open class TreeNode {
     }
 
     /**
-     * A container for [TreeNode]s of the given type.
+     * A container for [Node]s of the given type.
      */
-    sealed class Container<T : TreeNode> {
+    sealed class Container<T : Node> {
 
         /**
          * Releases the subtree that has this node as root. If this container does not contain the node nothing should
@@ -77,13 +77,13 @@ open class TreeNode {
          *   - From the node to its parent
          *   - From the node to its container
          */
-        internal abstract fun releaseNode(node: TreeNode)
+        internal abstract fun releaseNode(node: Node)
 
         /**
          * Sets parent and container properties of the node to `null`. This method can be called without causing cyclic
          * updates.
          */
-        protected fun nullifyUplinks(node: TreeNode?) {
+        protected fun nullifyUplinks(node: Node?) {
             node?.move(newParent = null, newContainer = null)
         }
 
@@ -91,13 +91,13 @@ open class TreeNode {
          * Sets parent and container properties of the node to this container. This method can be called without causing
          * cyclic updates.
          */
-        protected fun TreeNode?.pointUplinksToThisContainer(node: TreeNode?) {
+        protected fun Node?.pointUplinksToThisContainer(node: Node?) {
             node?.move(newParent = this@pointUplinksToThisContainer, newContainer = this@Container)
         }
     }
 
     /**
-     * Stores a reference to a [TreeNode] and keeps uplinks (parent/container) and downlinks (container to node) updated
+     * Stores a reference to a [Node] and keeps uplinks (parent/container) and downlinks (container to node) updated
      * on mutation.
      *
      * **Samples:**
@@ -149,7 +149,7 @@ open class TreeNode {
      *
      * @param node The initial value.
      */
-    inner class ContainmentReference<T : TreeNode>(node: T?) : Container<T>() {
+    inner class ContainmentReference<T : Node>(node: T?) : Container<T>() {
         var node: T? = null
             set(value) {
 
@@ -174,7 +174,7 @@ open class TreeNode {
             this.node = node
         }
 
-        override fun releaseNode(node: TreeNode) {
+        override fun releaseNode(node: Node) {
             if (this.node == node) {
                 this.node = null
             }
@@ -190,12 +190,12 @@ open class TreeNode {
     }
 
     /**
-     * Stores a list of references to [TreeNode]s and keeps uplinks (parent/container) and downlinks (container to node)
+     * Stores a list of references to [Node]s and keeps uplinks (parent/container) and downlinks (container to node)
      * updated on mutation.
      *
      * @param nodes The initial nodes.
      */
-    inner class ContainmentList<T : TreeNode> private constructor(
+    inner class ContainmentList<T : Node> private constructor(
         nodes: Collection<T>,
         private val delegate: MutableList<T>
     ) : Container<T>(), MutableList<T> by delegate {
@@ -206,7 +206,7 @@ open class TreeNode {
             addAll(nodes)
         }
 
-        override fun releaseNode(node: TreeNode) {
+        override fun releaseNode(node: Node) {
             this.remove(node)
         }
 
@@ -280,9 +280,9 @@ open class TreeNode {
     }
 
     /**
-     * References a [TreeNode] without containing it. Gets notified whenever the [TreeNode] is moved.
+     * References a [Node] without containing it. Gets notified whenever the [Node] is moved.
      */
-    class CrossReference<T : TreeNode>(
+    class CrossReference<T : Node>(
         node: T?,
         val handleMove: CrossReference<T>.(from: Location, to: Location) -> Unit = { _, _ -> }
     ) {
@@ -314,5 +314,5 @@ open class TreeNode {
         }
     }
 
-    data class Location(val parent: TreeNode?, val container: Container<*>?)
+    data class Location(val parent: Node?, val container: Container<*>?)
 }

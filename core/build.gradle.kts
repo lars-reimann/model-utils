@@ -4,6 +4,7 @@ val javaVersion: String by project
 
 plugins {
     kotlin("jvm")
+    `java-test-fixtures`
 }
 
 java {
@@ -17,6 +18,9 @@ java {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.0.2")
+
+    testFixturesImplementation(kotlin("test"))
+    testFixturesImplementation("io.kotest:kotest-assertions-core-jvm:5.0.2")
 }
 
 // Tasks ---------------------------------------------------------------------------------------------------------------

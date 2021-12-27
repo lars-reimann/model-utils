@@ -2,10 +2,10 @@
 
 package toRemove
 
-import com.larsreimann.modeling.TreeNode
+import com.larsreimann.modeling.Node
 import com.larsreimann.modeling.ancestorsOrSelf
 
-sealed class MutablePythonAstNode : TreeNode()
+sealed class MutablePythonAstNode : Node()
 
 sealed class MutablePythonDeclaration(
     var name: String,
