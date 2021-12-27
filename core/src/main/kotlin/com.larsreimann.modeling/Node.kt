@@ -1,5 +1,6 @@
 package com.larsreimann.modeling
 
+import java.lang.IllegalStateException
 import kotlin.reflect.KProperty
 
 /**
@@ -104,14 +105,14 @@ open class Node {
      *
      * _Normal assignment:_
      * ```kt
-     * object Root: TreeNode() {
-     *     private val child = ContainmentReference(TreeNode())
+     * object Root: Node() {
+     *     private val child = ContainmentReference(Node())
      *
-     *     fun get(): TreeNode? {
+     *     fun get(): Node? {
      *         return child.node
      *     }
      *
-     *     fun set(newNode: TreeNode?) {
+     *     fun set(newNode: Node?) {
      *         child.node = newNode
      *     }
      * }
@@ -119,14 +120,14 @@ open class Node {
      *
      * _Mutable delegate:_
      * ```kt
-     * object Root: TreeNode() {
-     *     private var child by ContainmentReference(TreeNode())
+     * object Root: Node() {
+     *     private var child by ContainmentReference(Node())
      *
-     *     fun get(): TreeNode? {
+     *     fun get(): Node? {
      *         return child
      *     }
      *
-     *     fun set(newNode: TreeNode?) {
+     *     fun set(newNode: Node?) {
      *         child = newNode
      *     }
      * }
@@ -134,14 +135,14 @@ open class Node {
      *
      * _Immutable delegate:_
      * ```kt
-     * object Root: TreeNode() {
-     *     private val child by ContainmentReference(TreeNode())
+     * object Root: Node() {
+     *     private val child by ContainmentReference(Node())
      *
-     *     fun get(): TreeNode? {
+     *     fun get(): Node? {
      *         return child
      *     }
      *
-     *     fun set(newNode: TreeNode?) {
+     *     fun set(newNode: Node?) {
      *         // Not possible
      *     }
      * }
@@ -190,12 +191,39 @@ open class Node {
     }
 
     /**
+     * Stores a list of references to [Node]s.
+     *
+     * @param nodes The initial nodes.
+     */
+    inner class ContainmentList<T : Node> private constructor(
+        nodes: Collection<T>,
+        private val delegate: MutableList<T>
+    ) : Container<T>(), List<T> by delegate {
+
+        constructor(nodes: Collection<T> = emptyList()) : this(nodes, mutableListOf())
+
+        init {
+            nodes.forEach {
+                it.release()
+                pointUplinksToThisContainer(it)
+            }
+            delegate.addAll(nodes)
+        }
+
+        override fun releaseNode(node: Node) {
+            if (node in delegate) {
+                throw IllegalStateException("Node is contained in an immutable list and cannot be released.")
+            }
+        }
+    }
+
+    /**
      * Stores a list of references to [Node]s and keeps uplinks (parent/container) and downlinks (container to node)
      * updated on mutation.
      *
      * @param nodes The initial nodes.
      */
-    inner class ContainmentList<T : Node> private constructor(
+    inner class MutableContainmentList<T : Node> private constructor(
         nodes: Collection<T>,
         private val delegate: MutableList<T>
     ) : Container<T>(), MutableList<T> by delegate {
@@ -281,6 +309,55 @@ open class Node {
 
     /**
      * References a [Node] without containing it. Gets notified whenever the [Node] is moved.
+     *
+     * **Samples:**
+     *
+     * _Normal assignment:_
+     * ```kt
+     * object Root: Node() {
+     *     private val reference = CrossReference(Node())
+     *
+     *     fun get(): Node? {
+     *         return reference.node
+     *     }
+     *
+     *     fun set(newNode: Node?) {
+     *         reference.node = newNode
+     *     }
+     * }
+     * ```
+     *
+     * _Mutable delegate:_
+     * ```kt
+     * object Root: Node() {
+     *     private var reference by CrossReference(Node())
+     *
+     *     fun get(): Node? {
+     *         return reference
+     *     }
+     *
+     *     fun set(newNode: Node?) {
+     *         reference = newNode
+     *     }
+     * }
+     * ```
+     *
+     * _Immutable delegate:_
+     * ```kt
+     * object Root: Node() {
+     *     private val reference by CrossReference(Node())
+     *
+     *     fun get(): Node? {
+     *         return reference
+     *     }
+     *
+     *     fun set(newNode: Node?) {
+     *         // Not possible
+     *     }
+     * }
+     * ```
+     *
+     * @param node The initial value.
      */
     class CrossReference<T : Node>(
         node: T?,

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class TraversalTest {
 
     private class Root(children: List<Node>) : NamedNode("root") {
-        val children = ContainmentList(children)
+        val children = MutableContainmentList(children)
 
         override fun children(): Sequence<Node> {
             return children.asSequence()
