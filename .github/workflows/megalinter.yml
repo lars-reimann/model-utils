@@ -7,5 +7,7 @@ on:
 jobs:
   run-megalinter:
     uses: lars-reimann/.github/.github/workflows/megalinter-reusable.yml@main
+    with:
+      flavor: java
     secrets:
       PAT: ${{ secrets.PAT }}
