@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test
 
 class MutableContainmentListTest {
 
-    private class Root(children: List<Node>, someMoreChildren: List<Node>) : NamedNode("root") {
+    private class Root(children: List<ModelNode>, someMoreChildren: List<ModelNode>) : NamedNode("root") {
         val children = MutableContainmentList(children)
         val someMoreChildren = MutableContainmentList(someMoreChildren)
     }
 
-    private lateinit var innerNode: Node
-    private lateinit var someOtherInnerNode: Node
+    private lateinit var innerNode: ModelNode
+    private lateinit var someOtherInnerNode: ModelNode
     private lateinit var root: Root
 
     @BeforeEach

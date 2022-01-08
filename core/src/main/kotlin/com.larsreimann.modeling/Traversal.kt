@@ -1,17 +1,17 @@
 package com.larsreimann.modeling
 
 /**
- * Returns the root of the tree that contains this [Node]. This may be this [Node] itself.
+ * Returns the root of the tree that contains this [ModelNode]. This may be this [ModelNode] itself.
  */
-fun Node.root(): Node {
+fun ModelNode.root(): ModelNode {
     return parent?.root() ?: this
 }
 
 /**
- * Returns the ancestors of this [Node] starting with its parent (if we are not at the root already) and then
+ * Returns the ancestors of this [ModelNode] starting with its parent (if we are not at the root already) and then
  * walking up the tree to the root.
  */
-fun Node.ancestors(): Sequence<Node> {
+fun ModelNode.ancestors(): Sequence<ModelNode> {
     return sequence {
         var current = parent
         while (current != null) {
@@ -22,9 +22,9 @@ fun Node.ancestors(): Sequence<Node> {
 }
 
 /**
- * Returns this [Node] and its ancestors starting at this [Node] and then walking up the tree to the root.
+ * Returns this [ModelNode] and its ancestors starting at this [ModelNode] and then walking up the tree to the root.
  */
-fun Node.ancestorsOrSelf(): Sequence<Node> {
+fun ModelNode.ancestorsOrSelf(): Sequence<ModelNode> {
     return sequence {
         yield(this@ancestorsOrSelf)
         yieldAll(ancestors())
@@ -32,18 +32,18 @@ fun Node.ancestorsOrSelf(): Sequence<Node> {
 }
 
 /**
- * Returns the siblings of this [Node], i.e. the children of its parent excluding this [Node]. The
+ * Returns the siblings of this [ModelNode], i.e. the children of its parent excluding this [ModelNode]. The
  * siblings are ordered like the children of the parent.
  */
-fun Node.siblings(): Sequence<Node> {
+fun ModelNode.siblings(): Sequence<ModelNode> {
     return parent?.children()?.filterNot { it == this } ?: emptySequence()
 }
 
 /**
- * Returns the children of the parent of this [Node], including this [Node]. The elements are ordered like
+ * Returns the children of the parent of this [ModelNode], including this [ModelNode]. The elements are ordered like
  * the children of the parent.
  */
-fun Node.siblingsOrSelf(): Sequence<Node> {
+fun ModelNode.siblingsOrSelf(): Sequence<ModelNode> {
     return parent?.children() ?: emptySequence()
 }
 
@@ -64,23 +64,23 @@ enum class Traversal {
 }
 
 /**
- * Returns the descendants of this [Node]. We can switch between preorder and postorder traversal.
+ * Returns the descendants of this [ModelNode] using either preorder and postorder traversal.
  *
  * @param order
  * The traversal order. Preorder means a parent is listed before any of its children and postorder means a parent is
  * listed after all its children.
  *
- * @param shouldTraverse
- * Whether the subtree should be traversed. If this function returns false for a concept none of its descendants will be
- * returned.
+ * @param shouldPrune
+ * Whether the subtree should be pruned. If this function returns true for a concept neither the concept itself nor
+ * any of its descendants will be traversed.
  */
-fun Node.descendants(
+fun ModelNode.descendants(
     order: Traversal = Traversal.PREORDER,
-    shouldTraverse: (Node) -> Boolean = { true }
-): Sequence<Node> {
+    shouldPrune: (ModelNode) -> Boolean = { false }
+): Sequence<ModelNode> {
 
     // Prevent children from being traversed if this concept should be pruned
-    if (!shouldTraverse(this)) {
+    if (shouldPrune(this)) {
         return emptySequence()
     }
 
@@ -88,14 +88,14 @@ fun Node.descendants(
         for (child in children()) {
 
             // We must prune again here; otherwise the child would be yielded unchecked
-            if (!shouldTraverse(child)) {
+            if (shouldPrune(child)) {
                 continue
             }
 
             if (order == Traversal.PREORDER) {
                 yield(child)
             }
-            yieldAll(child.descendants(order, shouldTraverse))
+            yieldAll(child.descendants(order, shouldPrune))
             if (order == Traversal.POSTORDER) {
                 yield(child)
             }
@@ -104,21 +104,21 @@ fun Node.descendants(
 }
 
 /**
- * Returns this [Node] and its descendants. We can switch between preorder and postorder traversal.
+ * Returns this [ModelNode] and its descendants using either preorder and postorder traversal.
  *
  * @param order
  * The traversal order. Preorder means a parent is listed before any of its children and postorder means a parent is
  * listed after all its children.
  *
- * @param shouldTraverse
- * Whether the subtree should be traversed. If this function returns false for a concept neither the concept itself nor
+ * @param shouldPrune
+ * Whether the subtree should be pruned. If this function returns true for a concept neither the concept itself nor
  * any of its descendants will be traversed.
  */
-fun Node.descendantsOrSelf(
+fun ModelNode.descendantsOrSelf(
     order: Traversal = Traversal.PREORDER,
-    shouldTraverse: (Node) -> Boolean = { true }
-): Sequence<Node> {
-    if (!shouldTraverse(this)) {
+    shouldPrune: (ModelNode) -> Boolean = { false }
+): Sequence<ModelNode> {
+    if (shouldPrune(this)) {
         return emptySequence()
     }
 
@@ -126,7 +126,7 @@ fun Node.descendantsOrSelf(
         if (order == Traversal.PREORDER) {
             yield(this@descendantsOrSelf)
         }
-        yieldAll(descendants(order, shouldTraverse))
+        yieldAll(descendants(order, shouldPrune))
         if (order == Traversal.POSTORDER) {
             yield(this@descendantsOrSelf)
         }
@@ -134,8 +134,8 @@ fun Node.descendantsOrSelf(
 }
 
 /**
- * Returns this [Node] or its nearest ancestor with the specified type.
+ * Returns this [ModelNode] or its nearest ancestor with the specified type.
  */
-inline fun <reified T> Node.closest(): T? {
+inline fun <reified T> ModelNode.closest(): T? {
     return ancestorsOrSelf().firstOrNull { it is T } as T?
 }

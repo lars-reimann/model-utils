@@ -6,7 +6,7 @@ import kotlin.reflect.KProperty
 /**
  * A node in a tree. It has references to its parent and its children.
  */
-open class Node {
+open class ModelNode {
 
     /**
      * Parent and container of this node in the tree.
@@ -17,7 +17,7 @@ open class Node {
     /**
      * The parent of this node in the tree.
      */
-    val parent: Node?
+    val parent: ModelNode?
         get() = location.parent
 
     /**
@@ -41,7 +41,7 @@ open class Node {
     /**
      * The child nodes of this node.
      */
-    open fun children() = emptySequence<Node>()
+    open fun children() = emptySequence<ModelNode>()
 
     /**
      * Cross-references to this node. They get notified whenever this node is moved.
@@ -58,7 +58,7 @@ open class Node {
     /**
      * Sets parent and container of this node in the tree.
      */
-    private fun move(newParent: Node?, newContainer: Container<*>?) {
+    private fun move(newParent: ModelNode?, newContainer: Container<*>?) {
         val oldLocation = this.location
         val newLocation = Location(newParent, newContainer)
         this.location = newLocation
@@ -67,9 +67,9 @@ open class Node {
     }
 
     /**
-     * A container for [Node]s of the given type.
+     * A container for [ModelNode]s of the given type.
      */
-    sealed class Container<T : Node> {
+    sealed class Container<T : ModelNode> {
 
         /**
          * Releases the subtree that has this node as root. If this container does not contain the node nothing should
@@ -78,13 +78,13 @@ open class Node {
          *   - From the node to its parent
          *   - From the node to its container
          */
-        internal abstract fun releaseNode(node: Node)
+        internal abstract fun releaseNode(node: ModelNode)
 
         /**
          * Sets parent and container properties of the node to `null`. This method can be called without causing cyclic
          * updates.
          */
-        protected fun nullifyUplinks(node: Node?) {
+        protected fun nullifyUplinks(node: ModelNode?) {
             node?.move(newParent = null, newContainer = null)
         }
 
@@ -92,13 +92,13 @@ open class Node {
          * Sets parent and container properties of the node to this container. This method can be called without causing
          * cyclic updates.
          */
-        protected fun Node?.pointUplinksToThisContainer(node: Node?) {
+        protected fun ModelNode?.pointUplinksToThisContainer(node: ModelNode?) {
             node?.move(newParent = this@pointUplinksToThisContainer, newContainer = this@Container)
         }
     }
 
     /**
-     * Stores a reference to a [Node] and keeps uplinks (parent/container) and downlinks (container to node) updated
+     * Stores a reference to a [ModelNode] and keeps uplinks (parent/container) and downlinks (container to node) updated
      * on mutation.
      *
      * **Samples:**
@@ -150,7 +150,7 @@ open class Node {
      *
      * @param node The initial value.
      */
-    inner class ContainmentReference<T : Node>(node: T?) : Container<T>() {
+    inner class ContainmentReference<T : ModelNode>(node: T?) : Container<T>() {
         var node: T? = null
             set(value) {
 
@@ -175,27 +175,27 @@ open class Node {
             this.node = node
         }
 
-        override fun releaseNode(node: Node) {
+        override fun releaseNode(node: ModelNode) {
             if (this.node == node) {
                 this.node = null
             }
         }
 
-        operator fun getValue(node: T, property: KProperty<*>): T? {
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): T? {
             return this.node
         }
 
-        operator fun setValue(oldNode: T, property: KProperty<*>, newNode: T?) {
+        operator fun setValue(thisRef: Any?, property: KProperty<*>, newNode: T?) {
             this.node = newNode
         }
     }
 
     /**
-     * Stores a list of references to [Node]s.
+     * Stores a list of references to [ModelNode]s.
      *
      * @param nodes The initial nodes.
      */
-    inner class ContainmentList<T : Node> private constructor(
+    inner class ContainmentList<T : ModelNode> private constructor(
         nodes: Collection<T>,
         private val delegate: MutableList<T>
     ) : Container<T>(), List<T> by delegate {
@@ -210,7 +210,7 @@ open class Node {
             delegate.addAll(nodes)
         }
 
-        override fun releaseNode(node: Node) {
+        override fun releaseNode(node: ModelNode) {
             if (node in delegate) {
                 throw IllegalStateException("Node is contained in an immutable list and cannot be released.")
             }
@@ -218,12 +218,12 @@ open class Node {
     }
 
     /**
-     * Stores a list of references to [Node]s and keeps uplinks (parent/container) and downlinks (container to node)
+     * Stores a list of references to [ModelNode]s and keeps uplinks (parent/container) and downlinks (container to node)
      * updated on mutation.
      *
      * @param nodes The initial nodes.
      */
-    inner class MutableContainmentList<T : Node> private constructor(
+    inner class MutableContainmentList<T : ModelNode> private constructor(
         nodes: Collection<T>,
         private val delegate: MutableList<T>
     ) : Container<T>(), MutableList<T> by delegate {
@@ -234,7 +234,7 @@ open class Node {
             addAll(nodes)
         }
 
-        override fun releaseNode(node: Node) {
+        override fun releaseNode(node: ModelNode) {
             this.remove(node)
         }
 
@@ -308,7 +308,7 @@ open class Node {
     }
 
     /**
-     * References a [Node] without containing it. Gets notified whenever the [Node] is moved.
+     * References a [ModelNode] without containing it. Gets notified whenever the [ModelNode] is moved.
      *
      * **Samples:**
      *
@@ -359,7 +359,7 @@ open class Node {
      *
      * @param node The initial value.
      */
-    class CrossReference<T : Node>(
+    class CrossReference<T : ModelNode>(
         node: T?,
         val handleMove: CrossReference<T>.(from: Location, to: Location) -> Unit = { _, _ -> }
     ) {
@@ -382,14 +382,14 @@ open class Node {
             handleMove(from, to)
         }
 
-        operator fun getValue(node: T, property: KProperty<*>): T? {
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): T? {
             return this.node
         }
 
-        operator fun setValue(oldNode: T, property: KProperty<*>, newNode: T?) {
+        operator fun setValue(thisRef: Any?, property: KProperty<*>, newNode: T?) {
             this.node = newNode
         }
     }
 
-    data class Location(val parent: Node?, val container: Container<*>?)
+    data class Location(val parent: ModelNode?, val container: Container<*>?)
 }

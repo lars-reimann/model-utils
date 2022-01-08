@@ -8,17 +8,17 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.sequences.shouldBeEmpty
 import org.junit.jupiter.api.Test
 
-class NodeTest {
+class ModelNodeTest {
 
     @Test
     fun `isRoot() should be true by default`() {
-        Node().isRoot().shouldBeTrue()
+        ModelNode().isRoot().shouldBeTrue()
     }
 
     @Test
     fun `isRoot() should indicate whether the node has a parent`() {
-        val innerNode = Node()
-        val root = object : Node() {
+        val innerNode = ModelNode()
+        val root = object : ModelNode() {
             val child = ContainmentReference(innerNode)
         }
 
@@ -28,13 +28,13 @@ class NodeTest {
 
     @Test
     fun `children() should be empty by default`() {
-        Node().children().shouldBeEmpty()
+        ModelNode().children().shouldBeEmpty()
     }
 
     @Test
     fun `release() should set parent and container to null`() {
-        val innerNode = Node()
-        val root = object : Node() {
+        val innerNode = ModelNode()
+        val root = object : ModelNode() {
             val child = ContainmentReference(innerNode)
         }
 

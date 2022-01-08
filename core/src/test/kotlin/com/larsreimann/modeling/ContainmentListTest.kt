@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test
 
 class ContainmentListTest {
 
-    private class Root(children: List<Node>) : NamedNode("root") {
+    private class Root(children: List<ModelNode>) : NamedNode("root") {
         val children = ContainmentList(children)
     }
 
-    private lateinit var innerNode: Node
+    private lateinit var innerNode: ModelNode
     private lateinit var root: Root
 
     @BeforeEach

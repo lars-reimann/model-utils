@@ -1,14 +1,14 @@
 package com.larsreimann.modeling.assertions
 
-import com.larsreimann.modeling.Node
+import com.larsreimann.modeling.ModelNode
 import io.kotest.matchers.ComparableMatcherResult
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
 
-internal fun beReleased() = object : Matcher<Node> {
-    override fun test(value: Node): MatcherResult {
-        val actual = Node.Location(value.parent, value.container)
-        val expected = Node.Location(null, null)
+internal fun beReleased() = object : Matcher<ModelNode> {
+    override fun test(value: ModelNode): MatcherResult {
+        val actual = ModelNode.Location(value.parent, value.container)
+        val expected = ModelNode.Location(null, null)
 
         return ComparableMatcherResult(
             passed = actual == expected,
@@ -20,10 +20,10 @@ internal fun beReleased() = object : Matcher<Node> {
     }
 }
 
-internal fun beLocatedAt(parent: Node, container: Node.Container<*>) = object : Matcher<Node> {
-    override fun test(value: Node): MatcherResult {
-        val actual = Node.Location(value.parent, value.container)
-        val expected = Node.Location(parent, container)
+internal fun beLocatedAt(parent: ModelNode, container: ModelNode.Container<*>) = object : Matcher<ModelNode> {
+    override fun test(value: ModelNode): MatcherResult {
+        val actual = ModelNode.Location(value.parent, value.container)
+        val expected = ModelNode.Location(parent, container)
 
         return ComparableMatcherResult(
             passed = actual == expected,

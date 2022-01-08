@@ -1,12 +1,12 @@
 package com.larsreimann.modeling.assertions
 
-import com.larsreimann.modeling.Node
+import com.larsreimann.modeling.ModelNode
 import io.kotest.matchers.should
 
 /**
  * Succeeds iff parent and container of this node are `null`.
  */
-fun Node.shouldBeReleased(): Node {
+fun ModelNode.shouldBeReleased(): ModelNode {
     this should beReleased()
     return this
 }
@@ -14,7 +14,7 @@ fun Node.shouldBeReleased(): Node {
 /**
  * Succeeds iff parent and container of this node are equal to the given values.
  */
-fun Node.shouldBeLocatedAt(parent: Node, container: Node.Container<*>): Node {
+fun ModelNode.shouldBeLocatedAt(parent: ModelNode, container: ModelNode.Container<*>): ModelNode {
     this should beLocatedAt(parent, container)
     return this
 }

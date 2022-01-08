@@ -8,15 +8,15 @@ import org.junit.jupiter.api.Test
 
 class TraversalTest {
 
-    private class Root(children: List<Node>) : NamedNode("root") {
+    private class Root(children: List<ModelNode>) : NamedNode("root") {
         val children = MutableContainmentList(children)
 
-        override fun children(): Sequence<Node> {
+        override fun children(): Sequence<ModelNode> {
             return children.asSequence()
         }
     }
 
-    private class InnerNode(child: Node) : NamedNode("innerNode") {
+    private class InnerNode(child: ModelNode) : NamedNode("innerNode") {
         val child by ContainmentReference(child)
 
         override fun children() = sequence {
@@ -24,9 +24,9 @@ class TraversalTest {
         }
     }
 
-    private lateinit var leaf1: Node
-    private lateinit var leaf2: Node
-    private lateinit var leaf3: Node
+    private lateinit var leaf1: ModelNode
+    private lateinit var leaf2: ModelNode
+    private lateinit var leaf3: ModelNode
     private lateinit var innerNode: InnerNode
     private lateinit var root: Root
 
@@ -81,7 +81,7 @@ class TraversalTest {
 
     @Test
     fun `descendant() should prune nodes if a filter is passed`() {
-        root.descendants { it !is InnerNode }.toList().shouldContainExactly(leaf2, leaf3)
+        root.descendants { it is InnerNode }.toList().shouldContainExactly(leaf2, leaf3)
     }
 
     @Test
@@ -96,7 +96,7 @@ class TraversalTest {
 
     @Test
     fun `descendantOrSelf() should prune nodes if a filter is passed`() {
-        root.descendantsOrSelf { it !is InnerNode }.toList().shouldContainExactly(root, leaf2, leaf3)
+        root.descendantsOrSelf { it is InnerNode }.toList().shouldContainExactly(root, leaf2, leaf3)
     }
 
     @Test

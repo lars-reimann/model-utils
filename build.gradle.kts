@@ -11,6 +11,11 @@ repositories {
     mavenCentral()
 }
 
+kover {
+    coverageEngine.set(kotlinx.kover.api.CoverageEngine.INTELLIJ)
+    generateReportOnCheck.set(true)
+}
+
 
 // Subprojects ---------------------------------------------------------------------------------------------------------
 
