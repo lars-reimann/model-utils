@@ -35,7 +35,7 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/lars-reimann/modeling")
+                    url.set("https://github.com/lars-reimann/modeling.git")
                 }
             }
         }
