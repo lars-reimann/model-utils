@@ -38,6 +38,8 @@ publishing {
             from(javaComponent)
 
             pom {
+                name.set("$groupId:$artifactId")
+                description.set("Utilities to simplify data modeling.")
                 url.set("https://github.com/lars-reimann/modeling")
                 licenses {
                     license {
@@ -49,10 +51,14 @@ publishing {
                     developer {
                         name.set("Lars Reimann")
                         email.set("mail@larsreimann.com")
+                        organization.set("N/A")
+                        organizationUrl.set("https://github.com/lars-reimann")
                     }
                 }
                 scm {
-                    url.set("https://github.com/lars-reimann/modeling.git")
+                    connection.set("scm:git:https://github.com/lars-reimann/modeling.git")
+                    developerConnection.set("scm:git:https://github.com/lars-reimann/modeling.git")
+                    url.set("https://github.com/lars-reimann/modeling")
                 }
             }
         }
