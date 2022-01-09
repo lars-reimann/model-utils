@@ -157,7 +157,7 @@ open class ModelNode {
     inner class ContainmentReference<T : ModelNode>(node: T?) : Container<T>() {
 
         /**
-         * The node that is currently referenced or `null`.
+         * The node that is currently contained or `null`.
          */
         var node: T? = null
             set(value) {
@@ -378,6 +378,9 @@ open class ModelNode {
         var handleMove: CrossReference<T>.(from: Location, to: Location) -> Unit = { _, _ -> }
     ) {
 
+        /**
+         * The node that is currently referenced or `null`.
+         */
         var node: T? = null
             set(value) {
                 if (field == value) {
