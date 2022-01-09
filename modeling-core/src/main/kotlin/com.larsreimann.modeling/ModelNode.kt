@@ -1,6 +1,5 @@
 package com.larsreimann.modeling
 
-import java.lang.IllegalStateException
 import kotlin.reflect.KProperty
 
 /**
@@ -11,20 +10,20 @@ open class ModelNode {
     /**
      * Parent and container of this node in the tree.
      */
-    var location: Location = Location(null, null)
-        private set
+    val location: Location
+        get() = Location(parent, container)
 
     /**
      * The parent of this node in the tree.
      */
     val parent: ModelNode?
-        get() = location.parent
+        get() = container?.parent
 
     /**
      * The container of this node in the tree.
      */
-    val container: Container<*>?
-        get() = location.container
+    var container: Container<*>? = null
+        private set
 
     /**
      * Cross-references to this node. They get notified whenever this node is moved.
@@ -61,7 +60,7 @@ open class ModelNode {
     private fun move(newParent: ModelNode?, newContainer: Container<*>?) {
         val oldLocation = this.location
         val newLocation = Location(newParent, newContainer)
-        this.location = newLocation
+        this.container = newContainer
 
         crossReferences.forEach { it.onMove(oldLocation, newLocation) }
     }
@@ -70,6 +69,11 @@ open class ModelNode {
      * A container for [ModelNode]s of the given type.
      */
     sealed class Container<T : ModelNode> {
+
+        /**
+         * The [ModelNode] that includes this container.
+         */
+        abstract val parent: ModelNode
 
         /**
          * Releases the subtree that has this node as root. If this container does not contain the node nothing should
@@ -151,6 +155,10 @@ open class ModelNode {
      * @param node The initial value.
      */
     inner class ContainmentReference<T : ModelNode>(node: T?) : Container<T>() {
+
+        /**
+         * The node that is currently referenced or `null`.
+         */
         var node: T? = null
             set(value) {
 
@@ -174,6 +182,8 @@ open class ModelNode {
         init {
             this.node = node
         }
+
+        override val parent = this@ModelNode
 
         override fun releaseNode(node: ModelNode) {
             if (this.node == node) {
@@ -210,6 +220,8 @@ open class ModelNode {
             delegate.addAll(nodes)
         }
 
+        override val parent = this@ModelNode
+
         override fun releaseNode(node: ModelNode) {
             if (node in delegate) {
                 throw IllegalStateException("Node is contained in an immutable list and cannot be released.")
@@ -233,6 +245,8 @@ open class ModelNode {
         init {
             addAll(nodes)
         }
+
+        override val parent = this@ModelNode
 
         override fun releaseNode(node: ModelNode) {
             this.remove(node)
@@ -359,10 +373,11 @@ open class ModelNode {
      *
      * @param node The initial value.
      */
-    class CrossReference<T : ModelNode>(
+    inner class CrossReference<T : ModelNode>(
         node: T?,
-        val handleMove: CrossReference<T>.(from: Location, to: Location) -> Unit = { _, _ -> }
+        var handleMove: CrossReference<T>.(from: Location, to: Location) -> Unit = { _, _ -> }
     ) {
+
         var node: T? = null
             set(value) {
                 if (field == value) {
@@ -377,6 +392,11 @@ open class ModelNode {
         init {
             this.node = node
         }
+
+        /**
+         * The [ModelNode] that includes this cross-reference.
+         */
+        val parent = this@ModelNode
 
         internal fun onMove(from: Location, to: Location) {
             handleMove(from, to)
