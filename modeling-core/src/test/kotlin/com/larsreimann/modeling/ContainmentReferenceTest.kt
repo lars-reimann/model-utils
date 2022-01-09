@@ -2,6 +2,7 @@ package com.larsreimann.modeling
 
 import com.larsreimann.modeling.assertions.shouldBeLocatedAt
 import com.larsreimann.modeling.assertions.shouldBeReleased
+import com.larsreimann.modeling.util.NamedNode
 import io.kotest.assertions.throwables.shouldNotThrowUnit
 import io.kotest.matchers.concurrent.shouldCompleteWithin
 import io.kotest.matchers.nulls.shouldBeNull
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 class ContainmentReferenceTest {
 
-    private class Root(child: ModelNode, someOtherChild: ModelNode) : ModelNode() {
+    private class Root(child: ModelNode, someOtherChild: ModelNode) : NamedNode("root") {
         val child = ContainmentReference(child)
         val someOtherChild = ContainmentReference(someOtherChild)
     }
@@ -23,8 +24,8 @@ class ContainmentReferenceTest {
 
     @BeforeEach
     fun resetTestData() {
-        innerNode = ModelNode()
-        someOtherInnerNode = ModelNode()
+        innerNode = NamedNode("innerNode")
+        someOtherInnerNode = NamedNode("someOtherInnerNode")
         root = Root(innerNode, someOtherInnerNode)
     }
 
@@ -32,6 +33,11 @@ class ContainmentReferenceTest {
     fun `constructor should correctly link initial value`() {
         innerNode.shouldBeLocatedAt(root, root.child)
         root.child.node shouldBe innerNode
+    }
+
+    @Test
+    fun `should store parent`() {
+        root.child.parent shouldBe root
     }
 
     @Test
