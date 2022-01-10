@@ -5,6 +5,7 @@ import com.larsreimann.modeling.util.NamedNode
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.sequences.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,6 +34,11 @@ class ContainmentListTest {
     @Test
     fun `should store parent`() {
         root.children.parent shouldBe root
+    }
+
+    @Test
+    fun `children should list children `() {
+        root.children.children().shouldContainExactly(innerNode)
     }
 
     @Test

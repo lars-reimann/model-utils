@@ -76,6 +76,11 @@ open class ModelNode {
         abstract val parent: ModelNode
 
         /**
+         * The [ModelNode]s within this container.
+         */
+        abstract fun children(): Sequence<T>
+
+        /**
          * Releases the subtree that has this node as root. If this container does not contain the node nothing should
          * happen. Otherwise, the following links need to be removed:
          *   - From the container to the node
@@ -185,6 +190,10 @@ open class ModelNode {
 
         override val parent = this@ModelNode
 
+        override fun children() = sequence {
+            node?.let { yield(it) }
+        }
+
         override fun releaseNode(node: ModelNode) {
             if (this.node == node) {
                 this.node = null
@@ -222,6 +231,10 @@ open class ModelNode {
 
         override val parent = this@ModelNode
 
+        override fun children() = sequence {
+            yieldAll(delegate)
+        }
+
         override fun releaseNode(node: ModelNode) {
             if (node in delegate) {
                 throw IllegalStateException("Node is contained in an immutable list and cannot be released.")
@@ -247,6 +260,10 @@ open class ModelNode {
         }
 
         override val parent = this@ModelNode
+
+        override fun children() = sequence {
+            yieldAll(delegate)
+        }
 
         override fun releaseNode(node: ModelNode) {
             this.remove(node)

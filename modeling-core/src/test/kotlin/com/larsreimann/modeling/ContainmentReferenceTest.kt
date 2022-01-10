@@ -6,6 +6,8 @@ import com.larsreimann.modeling.util.NamedNode
 import io.kotest.assertions.throwables.shouldNotThrowUnit
 import io.kotest.matchers.concurrent.shouldCompleteWithin
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.sequences.shouldBeEmpty
+import io.kotest.matchers.sequences.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,6 +40,17 @@ class ContainmentReferenceTest {
     @Test
     fun `should store parent`() {
         root.child.parent shouldBe root
+    }
+
+    @Test
+    fun `children should list child if it is not null`() {
+        root.child.children().shouldContainExactly(innerNode)
+    }
+
+    @Test
+    fun `children should not list child if it is null`() {
+        root.child.node = null
+        root.child.children().shouldBeEmpty()
     }
 
     @Test
