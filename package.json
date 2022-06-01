@@ -1,6 +1,6 @@
 {
     "private": true,
     "devDependencies": {
-        "@lars-reimann/prettier-config": "^4.0.4"
+        "@lars-reimann/prettier-config": "^5.0.0"
     }
 }
