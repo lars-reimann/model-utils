@@ -1,7 +1,7 @@
 // Plugins -------------------------------------------------------------------------------------------------------------
 
 plugins {
-    id("org.jetbrains.kotlinx.kover") version "0.5.0-RC"
+    id("org.jetbrains.kotlinx.kover") version "0.5.1"
 
     // Pin versions for subprojects
     kotlin("jvm") version "1.7.0" apply false
