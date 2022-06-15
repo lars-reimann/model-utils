@@ -13,7 +13,7 @@ internal fun beReleased() = object : Matcher<ModelNode> {
         return ComparableMatcherResult(
             passed = actual == expected,
             failureMessageFn = { "Node should be released." },
-            negatedFailureMessageFn = { "Node should not be released."},
+            negatedFailureMessageFn = { "Node should not be released." },
             actual = actual.toString(),
             expected = expected.toString()
         )
