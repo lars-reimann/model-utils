@@ -86,7 +86,7 @@ signing {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.0.3")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.3.1")
 
     testFixturesImplementation(kotlin("test"))
     testFixturesImplementation("io.kotest:kotest-assertions-core-jvm:5.0.3")
