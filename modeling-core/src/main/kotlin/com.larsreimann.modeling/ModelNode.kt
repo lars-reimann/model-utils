@@ -5,7 +5,7 @@ import kotlin.reflect.KProperty
 /**
  * A node in a tree. It has references to its parent and its children.
  */
-open class ModelNode {
+abstract class ModelNode {
 
     /**
      * Parent and container of this node in the tree.
@@ -28,7 +28,7 @@ open class ModelNode {
     /**
      * Cross-references to this node. They get notified whenever this node is moved.
      */
-    private val crossReferences = mutableListOf<CrossReference<*>>()
+    private val crossReferencesToThis = mutableListOf<CrossReference<*>>()
 
     /**
      * Whether this node is the root of the tree.
@@ -40,12 +40,12 @@ open class ModelNode {
     /**
      * The child nodes of this node.
      */
-    open fun children() = emptySequence<ModelNode>()
+    abstract fun children(): Sequence<ModelNode>
 
     /**
      * Cross-references to this node. They get notified whenever this node is moved.
      */
-    fun crossReferences() = crossReferences.toList().asSequence()
+    fun crossReferencesToThis() = crossReferencesToThis.toList().asSequence()
 
     /**
      * Releases the subtree that has this node as root.
@@ -62,7 +62,7 @@ open class ModelNode {
         val newLocation = Location(newParent, newContainer)
         this.container = newContainer
 
-        crossReferences.forEach { it.onMove(oldLocation, newLocation) }
+        crossReferencesToThis.forEach { it.onMove(oldLocation, newLocation) }
     }
 
     /**
@@ -404,9 +404,9 @@ open class ModelNode {
                     return
                 }
 
-                field?.crossReferences?.remove(this)
+                field?.crossReferencesToThis?.remove(this)
                 field = value
-                value?.crossReferences?.add(this)
+                value?.crossReferencesToThis?.add(this)
             }
 
         init {

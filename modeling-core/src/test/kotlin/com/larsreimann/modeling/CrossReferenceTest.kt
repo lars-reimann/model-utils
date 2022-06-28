@@ -37,7 +37,7 @@ class CrossReferenceTest {
     @Test
     fun `setter should register cross-reference on new node`() {
         root.crossReference.node = someOtherInnerNode
-        someOtherInnerNode.crossReferences().toList().shouldContainExactly(root.crossReference)
+        someOtherInnerNode.crossReferencesToThis().toList().shouldContainExactly(root.crossReference)
     }
 
     @Test
@@ -49,7 +49,7 @@ class CrossReferenceTest {
     @Test
     fun `setter should deregister cross-reference on old node`() {
         root.crossReference.node = someOtherInnerNode
-        innerNode.crossReferences().shouldBeEmpty()
+        innerNode.crossReferencesToThis().shouldBeEmpty()
     }
 
     @Test
@@ -62,7 +62,7 @@ class CrossReferenceTest {
     }
 
     @Test
-    fun `onMove should not called when the node was not moved`() {
+    fun `onMove should not be called when the node was not moved`() {
         var wasCalled = false
         root.crossReference.handleMove = { _, _ -> wasCalled = true }
         someOtherInnerNode.release()
