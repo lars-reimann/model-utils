@@ -3,6 +3,7 @@
 package com.larsreimann.modeling
 
 import com.larsreimann.modeling.assertions.shouldBeReleased
+import com.larsreimann.modeling.util.TestNode
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.sequences.shouldBeEmpty
@@ -12,13 +13,13 @@ class ModelNodeTest {
 
     @Test
     fun `isRoot() should be true by default`() {
-        ModelNode().isRoot().shouldBeTrue()
+        TestNode().isRoot().shouldBeTrue()
     }
 
     @Test
     fun `isRoot() should indicate whether the node has a parent`() {
-        val innerNode = ModelNode()
-        val root = object : ModelNode() {
+        val innerNode = TestNode()
+        val root = object : TestNode() {
             val child = ContainmentReference(innerNode)
         }
 
@@ -28,13 +29,13 @@ class ModelNodeTest {
 
     @Test
     fun `children() should be empty by default`() {
-        ModelNode().children().shouldBeEmpty()
+        TestNode().children().shouldBeEmpty()
     }
 
     @Test
     fun `release() should set parent and container to null`() {
-        val innerNode = ModelNode()
-        val root = object : ModelNode() {
+        val innerNode = TestNode()
+        val root = object : TestNode() {
             val child = ContainmentReference(innerNode)
         }
 

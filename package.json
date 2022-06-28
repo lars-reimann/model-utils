@@ -1,4 +1,5 @@
 {
+    "name": "modeling",
     "private": true,
     "devDependencies": {
         "@lars-reimann/prettier-config": "^5.0.0"
