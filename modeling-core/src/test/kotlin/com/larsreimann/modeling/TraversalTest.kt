@@ -11,8 +11,8 @@ class TraversalTest {
     private class Root(children: List<ModelNode>) : NamedNode("root") {
         val children = MutableContainmentList(children)
 
-        override fun children(): Sequence<ModelNode> {
-            return children.asSequence()
+        override fun children() = sequence {
+            yieldAll(children)
         }
     }
 
