@@ -1,17 +1,17 @@
 package com.larsreimann.modeling
 
 /**
- * Returns the root of the tree that contains this [ModelNode]. This may be this [ModelNode] itself.
+ * Returns the root of the tree that contains this [Traversable]. This may be this [Traversable] itself.
  */
-fun ModelNode.root(): ModelNode {
+fun Traversable.root(): Traversable {
     return parent?.root() ?: this
 }
 
 /**
- * Returns the ancestors of this [ModelNode] starting with its parent (if we are not at the root already) and then
+ * Returns the ancestors of this [Traversable] starting with its parent (if we are not at the root already) and then
  * walking up the tree to the root.
  */
-fun ModelNode.ancestors(): Sequence<ModelNode> {
+fun Traversable.ancestors(): Sequence<Traversable> {
     return sequence {
         var current = parent
         while (current != null) {
@@ -22,9 +22,9 @@ fun ModelNode.ancestors(): Sequence<ModelNode> {
 }
 
 /**
- * Returns this [ModelNode] and its ancestors starting at this [ModelNode] and then walking up the tree to the root.
+ * Returns this [Traversable] and its ancestors starting at this [Traversable] and then walking up the tree to the root.
  */
-fun ModelNode.ancestorsOrSelf(): Sequence<ModelNode> {
+fun Traversable.ancestorsOrSelf(): Sequence<Traversable> {
     return sequence {
         yield(this@ancestorsOrSelf)
         yieldAll(ancestors())
@@ -32,18 +32,18 @@ fun ModelNode.ancestorsOrSelf(): Sequence<ModelNode> {
 }
 
 /**
- * Returns the siblings of this [ModelNode], i.e. the children of its parent excluding this [ModelNode]. The
+ * Returns the siblings of this [Traversable], i.e. the children of its parent excluding this [Traversable]. The
  * siblings are ordered like the children of the parent.
  */
-fun ModelNode.siblings(): Sequence<ModelNode> {
+fun Traversable.siblings(): Sequence<Traversable> {
     return parent?.children()?.filterNot { it == this } ?: emptySequence()
 }
 
 /**
- * Returns the children of the parent of this [ModelNode], including this [ModelNode]. The elements are ordered like
+ * Returns the children of the parent of this [Traversable], including this [Traversable]. The elements are ordered like
  * the children of the parent.
  */
-fun ModelNode.siblingsOrSelf(): Sequence<ModelNode> {
+fun Traversable.siblingsOrSelf(): Sequence<Traversable> {
     return parent?.children() ?: emptySequence()
 }
 
@@ -64,7 +64,7 @@ enum class Traversal {
 }
 
 /**
- * Returns the descendants of this [ModelNode] using either preorder and postorder traversal.
+ * Returns the descendants of this [Traversable] using either preorder and postorder traversal.
  *
  * @param order
  * The traversal order. Preorder means a parent is listed before any of its children and postorder means a parent is
@@ -74,10 +74,10 @@ enum class Traversal {
  * Whether the subtree should be pruned. If this function returns true for a concept neither the concept itself nor
  * any of its descendants will be traversed.
  */
-fun ModelNode.descendants(
+fun Traversable.descendants(
     order: Traversal = Traversal.PREORDER,
-    shouldPrune: (ModelNode) -> Boolean = { false }
-): Sequence<ModelNode> {
+    shouldPrune: (Traversable) -> Boolean = { false }
+): Sequence<Traversable> {
 
     // Prevent children from being traversed if this concept should be pruned
     if (shouldPrune(this)) {
@@ -104,7 +104,7 @@ fun ModelNode.descendants(
 }
 
 /**
- * Returns this [ModelNode] and its descendants using either preorder and postorder traversal.
+ * Returns this [Traversable] and its descendants using either preorder and postorder traversal.
  *
  * @param order
  * The traversal order. Preorder means a parent is listed before any of its children and postorder means a parent is
@@ -114,10 +114,10 @@ fun ModelNode.descendants(
  * Whether the subtree should be pruned. If this function returns true for a concept neither the concept itself nor
  * any of its descendants will be traversed.
  */
-fun ModelNode.descendantsOrSelf(
+fun Traversable.descendantsOrSelf(
     order: Traversal = Traversal.PREORDER,
-    shouldPrune: (ModelNode) -> Boolean = { false }
-): Sequence<ModelNode> {
+    shouldPrune: (Traversable) -> Boolean = { false }
+): Sequence<Traversable> {
     if (shouldPrune(this)) {
         return emptySequence()
     }
@@ -134,8 +134,8 @@ fun ModelNode.descendantsOrSelf(
 }
 
 /**
- * Returns this [ModelNode] or its nearest ancestor with the specified type.
+ * Returns this [Traversable] or its nearest ancestor with the specified type.
  */
-inline fun <reified T> ModelNode.closest(): T? {
+inline fun <reified T> Traversable.closest(): T? {
     return ancestorsOrSelf().firstOrNull { it is T } as T?
 }

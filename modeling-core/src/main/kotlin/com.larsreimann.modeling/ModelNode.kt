@@ -6,7 +6,7 @@ import kotlin.reflect.KProperty
  * A node in a tree. It has references to its parent and children and supports cross-references. The node can be moved
  * around in the tree, while those references are updated in the background.
  */
-abstract class ModelNode {
+abstract class ModelNode : Traversable {
 
     /**
      * Parent and container of this node in the tree.
@@ -18,7 +18,7 @@ abstract class ModelNode {
     /**
      * The parent of this node in the tree.
      */
-    val parent: ModelNode?
+    override val parent: ModelNode?
         get() = container?.parent
 
     /**
@@ -33,16 +33,9 @@ abstract class ModelNode {
     private val crossReferencesToThis = mutableListOf<CrossReference<*>>()
 
     /**
-     * Whether this node is the root of the tree.
-     */
-    fun isRoot(): Boolean {
-        return parent == null
-    }
-
-    /**
      * The child nodes of this node.
      */
-    abstract fun children(): Sequence<ModelNode>
+    abstract override fun children(): Sequence<ModelNode>
 
     /**
      * Cross-references to this node. They get notified whenever this node is moved.
