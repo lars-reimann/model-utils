@@ -3,13 +3,15 @@ package com.larsreimann.modeling
 import kotlin.reflect.KProperty
 
 /**
- * A node in a tree. It has references to its parent and its children.
+ * A node in a tree. It has references to its parent and children and supports cross-references. The node can be moved
+ * around in the tree, while those references are updated in the background.
  */
 abstract class ModelNode {
 
     /**
      * Parent and container of this node in the tree.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     val location: Location
         get() = Location(parent, container)
 
