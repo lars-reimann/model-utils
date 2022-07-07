@@ -78,7 +78,6 @@ fun Traversable.descendants(
     order: Traversal = Traversal.PREORDER,
     shouldPrune: (Traversable) -> Boolean = { false }
 ): Sequence<Traversable> {
-
     // Prevent children from being traversed if this concept should be pruned
     if (shouldPrune(this)) {
         return emptySequence()
@@ -86,7 +85,6 @@ fun Traversable.descendants(
 
     return sequence {
         for (child in children()) {
-
             // We must prune again here; otherwise the child would be yielded unchecked
             if (shouldPrune(child)) {
                 continue
