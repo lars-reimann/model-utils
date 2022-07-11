@@ -33,11 +33,6 @@ abstract class ModelNode : Traversable {
     private val crossReferencesToThis = mutableListOf<CrossReference<*>>()
 
     /**
-     * The child nodes of this node.
-     */
-    abstract override fun children(): Sequence<ModelNode>
-
-    /**
      * Cross-references to this node. They get notified whenever this node is moved.
      */
     fun crossReferencesToThis() = crossReferencesToThis.toList().asSequence()
