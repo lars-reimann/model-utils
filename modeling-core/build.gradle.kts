@@ -7,6 +7,7 @@ val javaVersion: String by project
 plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.kover")
     `java-test-fixtures`
     `maven-publish`
     signing
