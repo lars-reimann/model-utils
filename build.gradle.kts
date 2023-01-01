@@ -2,7 +2,7 @@
 
 plugins {
     // Pin versions for subprojects
-    kotlin("jvm") version "1.7.22" apply false
+    kotlin("jvm") version "1.8.0" apply false
     id("org.jetbrains.dokka") version "1.7.20" apply false
     id("org.jetbrains.kotlinx.kover") version "0.6.1" apply false
 }
