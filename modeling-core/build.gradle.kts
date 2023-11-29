@@ -87,10 +87,10 @@ signing {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.7.2")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.8.0")
 
     testFixturesImplementation(kotlin("test"))
-    testFixturesImplementation("io.kotest:kotest-assertions-core-jvm:5.7.2")
+    testFixturesImplementation("io.kotest:kotest-assertions-core-jvm:5.8.0")
 }
 
 // Tasks ---------------------------------------------------------------------------------------------------------------
