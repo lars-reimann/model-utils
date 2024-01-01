@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload test report
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Test report
           path: modeling-core/build/reports/tests/test
@@ -44,7 +44,7 @@ jobs:
 
       - name: Upload test coverage
         if: ${{ github.actor != 'dependabot[bot]' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Test coverage
           path: modeling-core/build/reports/kover/html/
